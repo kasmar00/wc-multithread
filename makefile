@@ -1,0 +1,7 @@
+LINUX_GCC=gcc
+LINUX_CFLAGS=-Wall -pthread
+# LINUX_CFLAGS_END=-lrt
+LINUX_CFLAGS_END=
+
+all:
+	$(LINUX_GCC) $(LINUX_CFLAGS) -o main.out main.c $(LINUX_CFLAGS_END)
