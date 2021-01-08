@@ -21,13 +21,13 @@ void wc(char *file)
     MSG msgLine;
     msgChar.type = 1;
     msgLine.type = 1;
-    // strcpy(msgChar.text, "23");
     sprintf(msgChar.text, "%d", chars);
-    msgsnd(queuePCchars, &msgChar, strlen(msgChar.text) + 1, 0);
-    // strcpy(msgLine.text, "45");
     sprintf(msgLine.text, "%d", lines);
+    sem_wait(semQueuePC); // blokada przed przeplotem zapisu na kolejki do Counter
+    msgsnd(queuePCchars, &msgChar, strlen(msgChar.text) + 1, 0);
     msgsnd(queuePClines, &msgLine, strlen(msgLine.text) + 1, 0);
-    sem_post(semPC);
+    sem_post(semQueuePC);
+    sem_post(semPC); // informacja dla COunter o nowej wiadomości
 }
 
 void *proc(void *i)
@@ -36,22 +36,23 @@ void *proc(void *i)
     // sleep(2);
     printf("procs\n");
     MSG msga;
-    sem_wait(semFP);
-    printf("procs after sem\n");
-    msgrcv(queueFP, &msga, 1024, 0, 0);
-    printf("procs after msg\n");
-    while (strcmp(__END_MSG__, msga.text))
+    while (1)
     {
-        // printf("%s\n", msga.text);
-        wc(msga.text);
         sem_wait(semFP);
         msgrcv(queueFP, &msga, 1024, 0, 0);
+        if (strcmp(__END_MSG__, msga.text))
+            wc(msga.text);
+        else
+            break;
     }
+
     MSG msg;
     msg.type = 1;
     strcpy(msg.text, __END_MSG__);
+    sem_wait(semQueuePC); // blokada przed przeplotem zapisu na kolejki do Counter
     msgsnd(queuePCchars, &msg, strlen(msg.text) + 1, 0);
     msgsnd(queuePClines, &msg, strlen(msg.text) + 1, 0);
+    sem_post(semQueuePC);
     sem_post(semPC);
     printf("end proc\n");
     // while (1)

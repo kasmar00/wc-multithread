@@ -35,14 +35,10 @@ int main(int argc, char const *argv[])
     semMF = sem_open("/semMF", O_CREAT, 0600, 1); // semafor zezwalajaćy na odczyt z kolejki MF
     semFP = sem_open("/semFP", O_CREAT, 0600, 1); // semafor obrazujący liczbe wiadomości w kolejece FP
     semPC = sem_open("/semPC", O_CREAT, 0600, 1); // semafor obrazujący liczbe wiadomości w kolejece FP
+    semQueuePC = sem_open("/semQueuePC", O_CREAT, 0600, 1);
 
     MSG msg;
     msg.type = 1;
-    // strcpy(msg.text, "aaa");
-    // msgsnd(mid, &msg, strlen(msg.text) + 1, 0);
-
-    // msgrcv(mid, &msg, 1024, 0, 0);
-    // printf("%s\n", msg.text);
     pthread_t threadIdFinder;
     pthread_create(&threadIdFinder, NULL, finder, NULL);
     printf("Przesylam na MF\n");
@@ -80,5 +76,7 @@ int main(int argc, char const *argv[])
     sem_unlink("/semFP");
     sem_close(semPC);
     sem_unlink("/semPC");
+    sem_close(semQueuePC);
+    sem_unlink("/semQueuePC");
     return 0;
 }

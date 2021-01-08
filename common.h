@@ -19,5 +19,6 @@ typedef struct
 sem_t *semMF;
 sem_t *semFP;
 sem_t *semPC;
+sem_t *semQueuePC;
 
 #endif // __COMMON_H__
