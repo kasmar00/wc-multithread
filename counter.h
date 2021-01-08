@@ -8,18 +8,22 @@ void *counter(void *i)
     MSG msgChars;
     MSG msgLines;
 
+    int activeProcs = get_nprocs();
     printf("counter after sem\n");
     msgrcv(queuePCchars, &msgChars, 1023, 0, 0);
     msgrcv(queuePClines, &msgLines, 1023, 0, 0);
+    if (!strcmp(__END_MSG__, msgChars.text))
+        activeProcs--;
     printf("counter after msg\n");
-    int activeProcs = get_nprocs();
     while (activeProcs)
     {
 
-        printf("rcved %s %s\n", msgChars.text, msgLines.text);
+        printf("actv proc: %d; rcved %s %s\n", activeProcs, msgChars.text, msgLines.text);
         if (strcmp(__END_MSG__, msgChars.text))
+        {
             chars += atoi(msgChars.text);
-        lines += atoi(msgLines.text);
+            lines += atoi(msgLines.text);
+        }
         sem_wait(semPC);
         msgrcv(queuePCchars, &msgChars, 1023, 0, 0);
         msgrcv(queuePClines, &msgLines, 1023, 0, 0);
@@ -27,7 +31,7 @@ void *counter(void *i)
             activeProcs--;
     }
     printf("FINAL\n");
-    printf("Lines: %d\n Chars: %d\n", lines, chars);
+    printf("Liczba linii: %d\nLiczba znaków: %d\n", lines, chars);
 
     return NULL;
 }

@@ -33,7 +33,7 @@ void wc(char *file)
 void *proc(void *i)
 {
     // int queueFC = *((int *)i);
-    sleep(2);
+    // sleep(2);
     printf("procs\n");
     MSG msga;
     sem_wait(semFP);
@@ -52,8 +52,8 @@ void *proc(void *i)
     strcpy(msg.text, __END_MSG__);
     msgsnd(queuePCchars, &msg, strlen(msg.text) + 1, 0);
     msgsnd(queuePClines, &msg, strlen(msg.text) + 1, 0);
-    printf("proc ending\n");
     sem_post(semPC);
+    printf("end proc\n");
     // while (1)
     // ;
     return NULL;

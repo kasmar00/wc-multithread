@@ -27,31 +27,30 @@ void dirRead(int queue, char dirName[])
         switch (dirEnt->d_type)
         {
         case DT_DIR:
-            printf("Dir {");
+            printf("Dir %s {\n", dirEnt->d_name);
             if (strcmp(dirEnt->d_name, "..") != 0 && strcmp(dirEnt->d_name, ".") != 0)
             {
                 char buf[1024];
                 snprintf(buf, sizeof buf, "%s/%s", dirName, dirEnt->d_name);
                 dirRead(queue, buf);
             }
-            printf("} ");
+            printf("} \n");
             break;
         case DT_REG:
-            printf("Reg");
+            printf("Reg %s\n", dirEnt->d_name);
+            char buf[1024];
+            snprintf(buf, sizeof buf, "%s/%s", dirName, dirEnt->d_name);
+            MSG msg;
+            msg.type = 1;
+            strcpy(msg.text, buf);
+            msgsnd(queue, &msg, strlen(msg.text) + 1, 0);
+            sem_post(semFP);
             break;
 
         default:
-            printf("Other/Unkown");
+            printf("Other/Unkown %s\n", dirEnt->d_name);
             break;
         }
-        printf(" %s\n", dirEnt->d_name);
-        char buf[1024];
-        snprintf(buf, sizeof buf, "%s/%s", dirName, dirEnt->d_name);
-        MSG msg;
-        msg.type = 1;
-        strcpy(msg.text, buf);
-        msgsnd(queue, &msg, strlen(msg.text) + 1, 0);
-        sem_post(semFP);
     }
 }
 
@@ -84,6 +83,6 @@ void *finder(void *info)
         msgsnd(queueFP, &msg, strlen(msg.text) + 1, 0);
         sem_post(semFP);
     }
-
+    printf("end finder\n");
     return NULL;
 }
