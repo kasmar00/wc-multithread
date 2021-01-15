@@ -14,7 +14,20 @@
 
 #include "common.h"
 
-void dirRead(int queue, char dirName[])
+// https://stackoverflow.com/a/744822
+int checkExtension(const char *filename, const char *extension)
+{
+    if (!filename || !extension)
+        return 0;
+    size_t lenFilename = strlen(filename);
+    size_t lenExtension = strlen(extension);
+    if (lenExtension > lenFilename)
+        return 0;
+    return strncmp(filename + lenFilename - lenExtension, extension, lenExtension) == 0;
+    // filename to wskażnik na początek napisu, więc dodajemy jego długość i odejmujemy długość suffixu, żeby uzyskać samo rozszerzenie pliku
+}
+
+void dirRead(int queue, char dirName[], const char arr[32][1024], int extLen)
 {
     printf("szukanie w %s\n", dirName);
     DIR *rootDir;
@@ -32,7 +45,7 @@ void dirRead(int queue, char dirName[])
             {
                 char buf[1024];
                 snprintf(buf, sizeof buf, "%s/%s", dirName, dirEnt->d_name);
-                dirRead(queue, buf);
+                dirRead(queue, buf, arr, extLen);
             }
             printf("} \n");
             break;
@@ -40,11 +53,20 @@ void dirRead(int queue, char dirName[])
             printf("Reg %s\n", dirEnt->d_name);
             char buf[1024];
             snprintf(buf, sizeof buf, "%s/%s", dirName, dirEnt->d_name);
-            MSG msg;
-            msg.type = 1;
-            strcpy(msg.text, buf);
-            msgsnd(queue, &msg, strlen(msg.text) + 1, 0);
-            sem_post(semFP);
+            int flag = 0;
+            for (int i = 0; i < extLen; i++) //check extensions
+            {
+                if (checkExtension(buf, arr[i]))
+                    flag = 1;
+            }
+            if (flag)
+            {
+                MSG msg;
+                msg.type = 1;
+                strcpy(msg.text, buf);
+                msgsnd(queue, &msg, strlen(msg.text) + 1, 0);
+                sem_post(semFP);
+            }
             break;
 
         default:
@@ -56,8 +78,6 @@ void dirRead(int queue, char dirName[])
 
 void *finder(void *info)
 {
-    // sleep(1);
-    //TODO: check only files with extensions
     printf("thread\n");
     sem_wait(semMF);
     MSG msg;
@@ -76,7 +96,7 @@ void *finder(void *info)
     printf("dir: %s\n", dirName);
     for (int j = 0; j < i; j++)
         printf("args: %s\n", ext[j]);
-    dirRead(queueFP, dirName);
+    dirRead(queueFP, dirName, ext, i);
     for (int i = 0; i < get_nprocs(); i++)
     {
         strcpy(msg.text, __END_MSG__);

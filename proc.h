@@ -1,20 +1,25 @@
 #include "common.h"
 
+#include <sys/mman.h>
+#include <ctype.h>
+
 void wc(char *file)
 {
-    //TODO: change to mmap
+    int lines = 0, chars = 0;
+    struct stat *buffer = malloc(sizeof(struct stat));
+    stat(file, buffer);
+    printf("%ld\n", buffer->st_size);
     int d = open(file, O_RDONLY);
-    char buf[1];
-    int n, lines = 0, chars = 0;
-    while ((n = read(d, buf, 1)) > 0)
+    char *ptr = mmap(NULL, buffer->st_size, PROT_READ, MAP_SHARED, d, 0);
+    for (int i = 0; i < buffer->st_size; i++)
     {
-        if (buf[0] == '\n')
-        {
+        // printf("%c", (char)*(ptr + i));
+        if ((char)*(ptr + i) == '\n')
             lines++;
-        }
-        chars++;
+        if (!isspace((char)*(ptr + i)))
+            chars++;
     }
-    printf("plik: %s znakow %d, linijek %d\n", file, chars, lines);
+    printf("procs: %ld, plik: %s znakow %d, linijek %d\n", pthread_self(), file, chars, lines);
     close(d);
     //send to counter
     MSG msgChar;
@@ -55,7 +60,5 @@ void *proc(void *i)
     sem_post(semQueuePC);
     sem_post(semPC);
     printf("end proc\n");
-    // while (1)
-    // ;
     return NULL;
 }
