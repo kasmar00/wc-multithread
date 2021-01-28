@@ -1,6 +1,7 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
+#include <semaphore.h>
 #include <sys/msg.h>
 
 int queueMF;      // kolejka dla main->finder
