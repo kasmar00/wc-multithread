@@ -24,16 +24,16 @@ clean:
 	rm *.o
 	rm *.out
 
-main.o: main.c
+main.o: main.c common.h
 	$(LINUX_GCC) $(LINUX_CFLAGS) -c main.c $(LINUX_CFLAGS_END)
 	
-%.o: %.c %.h
+%.o: %.c %.h common.h
 	$(LINUX_GCC) $(LINUX_CFLAGS) -c $< $(LINUX_CFLAGS_END)
 
 help:
 	@echo "Makefile for C Project"
 	@echo "Course: System Programming and Concurent Programming"
-	@echo "Computing 3 sem, Faculty of Computing and Telecomunications Poznań Univeristy of Technology 2020/2021."
+	@echo "Computing 3 sem, Faculty of Computing and Telecomunications, Poznań Univeristy of Technology Winter 2020/2021."
 	@echo "Author: Marcin Kasznia"
 	@echo
 	@echo "Make options:"

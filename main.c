@@ -27,18 +27,14 @@ int main(int argc, char const *argv[])
         perror("Za mało argumentów");
         return -1;
     }
-    queueFP = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT);      // kolejka dla Finder->Proc's
     queuePCchars = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT); // kolejka dla Proc's->Counter (znaki)
     queuePClines = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT); // kolejka dla Proc's->Counter (linijki)
 
-    semFP = sem_open("/semFP", O_CREAT, 0600, 1); // semafor obrazujący liczbe wiadomości w kolejece FP
     semPC = sem_open("/semPC", O_CREAT, 0600, 1); // semafor obrazujący liczbe wiadomości w kolejece FP
     semQueuePC = sem_open("/semQueuePC", O_CREAT, 0600, 1);
 
-    // set global variables
-    pathsPointer = -1;
-    linesPointer = -1;
-    charsPointer = -1;
+    // initalise stack variables
+    stack_init(&paths);
     extensionsCounter = 0;
 
     pthread_t threadIdFinder;
@@ -68,12 +64,9 @@ int main(int argc, char const *argv[])
     for (int i = 0; i < get_nprocs(); i++)
         pthread_join(threadIdProc[i], NULL);
     pthread_join(threadIdCounter, NULL);
-    msgctl(queueFP, IPC_RMID, NULL);
     msgctl(queuePCchars, IPC_RMID, NULL);
     msgctl(queuePClines, IPC_RMID, NULL);
 
-    sem_close(semFP);
-    sem_unlink("/semFP");
     sem_close(semPC);
     sem_unlink("/semPC");
     sem_close(semQueuePC);

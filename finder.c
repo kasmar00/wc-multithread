@@ -25,12 +25,11 @@ int checkExtension(const char *filename, const char *extension)
     size_t lenExtension = strlen(extension);
     if (lenExtension > lenFilename)
         return 0;
-    // if ()
     return strncmp(filename + lenFilename - lenExtension, extension, lenExtension) == 0;
     // filename to wskażnik na początek napisu, więc dodajemy jego długość i odejmujemy długość suffixu, żeby uzyskać samo rozszerzenie pliku
 }
 
-void dirRead(int queue, char *dirName)
+void dirRead(char *dirName)
 {
     printf("szukanie w %s\n", dirName);
     DIR *rootDir;
@@ -48,7 +47,7 @@ void dirRead(int queue, char *dirName)
             {
                 char buf[1024];
                 snprintf(buf, sizeof buf, "%s/%s", dirName, dirEnt->d_name);
-                dirRead(queue, buf);
+                dirRead(buf);
             }
             printf("} \n");
             break;
@@ -64,11 +63,10 @@ void dirRead(int queue, char *dirName)
             }
             if (flag)
             {
-                MSG msg;
-                msg.type = 1;
-                strcpy(msg.text, buf);
-                msgsnd(queue, &msg, strlen(msg.text) + 1, 0);
-                sem_post(semFP);
+                // put on paths stack
+                printf("pushing:\n");
+                char *element = strdup(buf);
+                stack_push(&paths, element);
             }
             break;
 
@@ -81,19 +79,19 @@ void dirRead(int queue, char *dirName)
 
 void *finder(void *info)
 {
+    paths.pointer = -1;
     printf("thread\n");
-    MSG msg;
 
+    for (int i = 0; i < get_nprocs(); i++)
+    {
+        char *tmp = strdup(__END_MSG__);
+        stack_push(&paths, tmp);
+    }
     printf("dir: %s\n", rootDirName);
     for (int j = 0; j < extensionsCounter; j++)
         printf("args: %s\n", extensions[j]);
-    dirRead(queueFP, rootDirName);
-    for (int i = 0; i < get_nprocs(); i++)
-    {
-        strcpy(msg.text, __END_MSG__);
-        msgsnd(queueFP, &msg, strlen(msg.text) + 1, 0);
-        sem_post(semFP);
-    }
+    dirRead(rootDirName);
+    stack_read(&paths);
     printf("end finder\n");
     return NULL;
 }

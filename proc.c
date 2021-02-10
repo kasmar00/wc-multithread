@@ -49,13 +49,11 @@ void wc(char *file)
 void *proc(void *i)
 {
     printf("procs\n");
-    MSG msga;
     while (1)
     {
-        sem_wait(semFP);
-        msgrcv(queueFP, &msga, 1024, 0, 0);
-        if (strcmp(__END_MSG__, msga.text))
-            wc(msga.text);
+        char *tmp = stack_pop(&paths);
+        if (strcmp(__END_MSG__, tmp))
+            wc(tmp);
         else
             break;
     }
