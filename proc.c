@@ -32,23 +32,27 @@ void wc(char *file)
     }
     printf("procs: %ld, plik: %s znakow %d, linijek %d\n", pthread_self(), file, chars, lines);
     close(d);
-    //send to counter
-    MSG msgChar;
-    MSG msgLine;
-    msgChar.type = 1;
-    msgLine.type = 1;
-    sprintf(msgChar.text, "%d", chars);
-    sprintf(msgLine.text, "%d", lines);
+    char strChars[1024];
+    char strLines[1024];
+    sprintf(strChars, "%d", chars);
+    sprintf(strLines, "%d", lines);
+    char *a = strdup(strChars);
+    char *b = strdup(strLines);
     sem_wait(semQueuePC); // blokada przed przeplotem zapisu na kolejki do Counter
-    msgsnd(queuePCchars, &msgChar, strlen(msgChar.text) + 1, 0);
-    msgsnd(queuePClines, &msgLine, strlen(msgLine.text) + 1, 0);
+    stack_push(&charsStack, a);
+    stack_push(&linesStack, b);
     sem_post(semQueuePC);
-    sem_post(semPC); // informacja dla COunter o nowej wiadomości
 }
 
 void *proc(void *i)
 {
     printf("procs\n");
+    char *endChars = strdup(__END_MSG__);
+    char *endLines = strdup(__END_MSG__);
+    sem_wait(semQueuePC); // blokada przed przeplotem zapisu na kolejki do Counter
+    stack_push(&charsStack, endChars);
+    stack_push(&linesStack, endLines);
+    sem_post(semQueuePC);
     while (1)
     {
         char *tmp = stack_pop(&paths);
@@ -59,14 +63,6 @@ void *proc(void *i)
     }
 
     printf("ending proc\n");
-    MSG msg;
-    msg.type = 1;
-    strcpy(msg.text, __END_MSG__);
-    sem_wait(semQueuePC); // blokada przed przeplotem zapisu na kolejki do Counter
-    msgsnd(queuePCchars, &msg, strlen(msg.text) + 1, 0);
-    msgsnd(queuePClines, &msg, strlen(msg.text) + 1, 0);
-    sem_post(semQueuePC);
-    sem_post(semPC);
     printf("end proc\n");
     return NULL;
 }

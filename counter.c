@@ -13,22 +13,21 @@ void *counter(void *i)
     int chars = 0;
     int lines = 0;
     printf("counter\n");
-    MSG msgChars;
-    MSG msgLines;
 
     int activeProcs = get_nprocs();
 
     while (1)
     {
-        sem_wait(semPC);
-        msgrcv(queuePCchars, &msgChars, 1023, 0, 0);
-        msgrcv(queuePClines, &msgLines, 1023, 0, 0);
-        printf("actv proc: %d; rcved %s %s\n", activeProcs, msgChars.text, msgLines.text);
+        sem_wait(semQueuePC); // blokada przed przeplotem zapisu na kolejki do Counter
+        char *strChars = stack_pop(&charsStack);
+        char *strLines = stack_pop(&linesStack);
+        sem_post(semQueuePC);
+        printf("actv proc: %d; rcved %s %s\n", activeProcs, strChars, strLines);
 
-        if (strcmp(__END_MSG__, msgChars.text))
+        if (strcmp(__END_MSG__, strChars))
         {
-            chars += atoi(msgChars.text);
-            lines += atoi(msgLines.text);
+            chars += atoi(strChars);
+            lines += atoi(strLines);
         }
         else
             activeProcs--;
