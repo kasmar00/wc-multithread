@@ -27,37 +27,40 @@ int main(int argc, char const *argv[])
         perror("Za mało argumentów");
         return -1;
     }
-    queueMF = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT);      // kolejka dla main->finder
     queueFP = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT);      // kolejka dla Finder->Proc's
     queuePCchars = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT); // kolejka dla Proc's->Counter (znaki)
     queuePClines = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT); // kolejka dla Proc's->Counter (linijki)
 
-    semMF = sem_open("/semMF", O_CREAT, 0600, 1); // semafor zezwalajaćy na odczyt z kolejki MF
     semFP = sem_open("/semFP", O_CREAT, 0600, 1); // semafor obrazujący liczbe wiadomości w kolejece FP
     semPC = sem_open("/semPC", O_CREAT, 0600, 1); // semafor obrazujący liczbe wiadomości w kolejece FP
     semQueuePC = sem_open("/semQueuePC", O_CREAT, 0600, 1);
 
-    MSG msg;
-    msg.type = 1;
-    pthread_t threadIdFinder;
-    pthread_create(&threadIdFinder, NULL, finder, NULL);
-    printf("Przesylam na MF\n");
-    for (int i = 1; i < argc; i++) //przesłanie ściezki i rozszerzeń do wątku finder
-    {
-        strcpy(msg.text, argv[i]);
-        msgsnd(queueMF, &msg, strlen(msg.text) + 1, 0);
-    }
-    printf("Koniec przesyłania na MF\n");
-    sem_post(semMF);
+    // set global variables
+    pathsPointer = -1;
+    linesPointer = -1;
+    charsPointer = -1;
+    extensionsCounter = 0;
 
+    pthread_t threadIdFinder;
+    strcpy(rootDirName, argv[1]);
+    for (int i = 2; i < argc; i++)
+    {
+        strcpy(extensions[extensionsCounter], argv[i]);
+        extensionsCounter++;
+    }
+
+    pthread_create(&threadIdFinder, NULL, finder, NULL);
+
+    sleep(10);
     pthread_t threadIdProc[get_nprocs()];
     for (int i = 0; i < get_nprocs(); i++)
     {
         pthread_create(&threadIdProc[i], NULL, proc, NULL);
     }
+    sleep(10);
     pthread_t threadIdCounter;
     pthread_create(&threadIdCounter, NULL, counter, NULL);
-    // sleep(50);
+    sleep(10);
 
     printf("sprzątam\n");
     // sprzątanie
@@ -65,13 +68,10 @@ int main(int argc, char const *argv[])
     for (int i = 0; i < get_nprocs(); i++)
         pthread_join(threadIdProc[i], NULL);
     pthread_join(threadIdCounter, NULL);
-    msgctl(queueMF, IPC_RMID, NULL);
     msgctl(queueFP, IPC_RMID, NULL);
     msgctl(queuePCchars, IPC_RMID, NULL);
     msgctl(queuePClines, IPC_RMID, NULL);
 
-    sem_close(semMF);
-    sem_unlink("/semMF");
     sem_close(semFP);
     sem_unlink("/semFP");
     sem_close(semPC);

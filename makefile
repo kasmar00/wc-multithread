@@ -8,10 +8,10 @@ LINUX_CFLAGS_END=
 SRCS := $(wildcard *.c)
 OBJ := $(SRCS:%.c=%.o)
 
-all: ${OBJ} main.out
-	@echo "Linking files"
+all: main.out
 
-main.out:
+main.out: ${OBJ}
+	@echo "Linking files"
 	$(LINUX_GCC) $(LINUX_CFLAGS) -o main.out ${OBJ} $(LINUX_CFLAGS_END)
 
 
@@ -24,8 +24,11 @@ clean:
 	rm *.o
 	rm *.out
 
-%.o: %.cpp %.h
-	$(LINUX_GCC) $(LINUX_CFLAGS) -Wall -c $< $(LINUX_CFLAGS_END)
+main.o: main.c
+	$(LINUX_GCC) $(LINUX_CFLAGS) -c main.c $(LINUX_CFLAGS_END)
+	
+%.o: %.c %.h
+	$(LINUX_GCC) $(LINUX_CFLAGS) -c $< $(LINUX_CFLAGS_END)
 
 help:
 	@echo "Makefile for C Project"

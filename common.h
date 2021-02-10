@@ -4,7 +4,23 @@
 #include <semaphore.h>
 #include <sys/msg.h>
 
-int queueMF;      // kolejka dla main->finder
+#define MaxStackSize 500
+
+// stack for paths
+char *paths[MaxStackSize];
+int pathsPointer;
+
+// stack for results
+int lines[MaxStackSize];
+int linesPointer;
+int chars[MaxStackSize];
+int charsPointer;
+
+// global args
+char rootDirName[1024];    // name of root dir
+char extensions[32][1024]; // extensions to filter
+int extensionsCounter;
+
 int queueFP;      // kolejka dla Finder->Proc's
 int queuePCchars; // kolejka dla Proc's->Counter (znaki)
 int queuePClines; // kolejka dla Proc's->Counter (linijki)
@@ -17,7 +33,6 @@ typedef struct
 
 #define __END_MSG__ "|END"
 
-sem_t *semMF;
 sem_t *semFP;
 sem_t *semPC;
 sem_t *semQueuePC;

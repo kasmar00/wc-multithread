@@ -30,7 +30,7 @@ int checkExtension(const char *filename, const char *extension)
     // filename to wskażnik na początek napisu, więc dodajemy jego długość i odejmujemy długość suffixu, żeby uzyskać samo rozszerzenie pliku
 }
 
-void dirRead(int queue, char *dirName, const char arr[32][1024], int extLen)
+void dirRead(int queue, char *dirName)
 {
     printf("szukanie w %s\n", dirName);
     DIR *rootDir;
@@ -48,7 +48,7 @@ void dirRead(int queue, char *dirName, const char arr[32][1024], int extLen)
             {
                 char buf[1024];
                 snprintf(buf, sizeof buf, "%s/%s", dirName, dirEnt->d_name);
-                dirRead(queue, buf, arr, extLen);
+                dirRead(queue, buf);
             }
             printf("} \n");
             break;
@@ -57,9 +57,9 @@ void dirRead(int queue, char *dirName, const char arr[32][1024], int extLen)
             char buf[1024];
             snprintf(buf, sizeof buf, "%s/%s", dirName, dirEnt->d_name);
             int flag = 0;
-            for (int i = 0; i < extLen; i++) //check extensions
+            for (int i = 0; i < extensionsCounter; i++) //check extensions
             {
-                if (checkExtension(buf, arr[i]))
+                if (checkExtension(buf, extensions[i]))
                     flag = 1;
             }
             if (flag)
@@ -82,24 +82,12 @@ void dirRead(int queue, char *dirName, const char arr[32][1024], int extLen)
 void *finder(void *info)
 {
     printf("thread\n");
-    sem_wait(semMF);
     MSG msg;
-    msgrcv(queueMF, &msg, 1024, 0, 0);
-    char dirName[1024];
-    strcpy(dirName, msg.text);
 
-    char ext[32][1024];
-    int i = 0;
-    while (msgrcv(queueMF, &msg, 1024, 0, IPC_NOWAIT) != -1)
-    {
-        strcpy(ext[i], msg.text);
-        i++;
-    }
-
-    printf("dir: %s\n", dirName);
-    for (int j = 0; j < i; j++)
-        printf("args: %s\n", ext[j]);
-    dirRead(queueFP, dirName, ext, i);
+    printf("dir: %s\n", rootDirName);
+    for (int j = 0; j < extensionsCounter; j++)
+        printf("args: %s\n", extensions[j]);
+    dirRead(queueFP, rootDirName);
     for (int i = 0; i < get_nprocs(); i++)
     {
         strcpy(msg.text, __END_MSG__);

@@ -2,6 +2,6 @@
 #define __FINDER_H__
 
 int checkExtension(const char *filename, const char *extension);
-void dirRead(int queue, char *dirName, const char arr[32][1024], int extLen);
+void dirRead(int queue, char *dirName);
 void *finder(void *info);
 #endif // __FINDER_H__

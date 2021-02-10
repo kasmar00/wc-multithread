@@ -48,8 +48,6 @@ void wc(char *file)
 
 void *proc(void *i)
 {
-    // int queueFC = *((int *)i);
-    // sleep(2);
     printf("procs\n");
     MSG msga;
     while (1)
@@ -62,6 +60,7 @@ void *proc(void *i)
             break;
     }
 
+    printf("ending proc\n");
     MSG msg;
     msg.type = 1;
     strcpy(msg.text, __END_MSG__);
