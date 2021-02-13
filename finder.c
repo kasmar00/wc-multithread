@@ -1,15 +1,5 @@
-#include <sys/types.h>
-#include <unistd.h>
 #include <stdio.h>
-#include <sys/ipc.h>
-#include <sys/msg.h>
 #include <string.h>
-#include <sys/types.h>
-#include <fcntl.h>
-
-#include <pthread.h>
-#include <sys/sysinfo.h>
-#include <stdlib.h>
 #include <dirent.h>
 
 #include "common.h"
@@ -82,16 +72,12 @@ void *finder(void *info)
     paths.pointer = -1;
     printf("thread\n");
 
-    for (int i = 0; i < get_nprocs(); i++)
-    {
-        char *tmp = strdup(__END_MSG__);
-        stack_push(&paths, tmp);
-    }
     printf("dir: %s\n", rootDirName);
     for (int j = 0; j < extensionsCounter; j++)
         printf("args: %s\n", extensions[j]);
     dirRead(rootDirName);
     stack_read(&paths);
+    stack_endData(&paths);
     printf("end finder\n");
     return NULL;
 }

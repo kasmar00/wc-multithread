@@ -2,7 +2,6 @@
 #define __COMMON_H__
 
 #include <semaphore.h>
-#include <sys/msg.h>
 
 #include "stack.h"
 
@@ -16,8 +15,6 @@ STACK linesStack;
 char rootDirName[1024];    // name of root dir
 char extensions[32][1024]; // extensions to filter
 int extensionsCounter;
-
-#define __END_MSG__ "|END"
 
 sem_t *semQueuePC;
 

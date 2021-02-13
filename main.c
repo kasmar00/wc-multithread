@@ -1,17 +1,9 @@
-#include <sys/types.h>
-#include <unistd.h>
 #include <stdio.h>
-#include <sys/ipc.h>
-#include <sys/msg.h>
 #include <string.h>
 #include <fcntl.h>
 
 #include <pthread.h>
 #include <sys/sysinfo.h>
-#include <stdlib.h>
-#include <dirent.h>
-
-#include <sys/stat.h>
 #include <semaphore.h>
 
 #include "common.h"
@@ -31,9 +23,9 @@ int main(int argc, char const *argv[])
     semQueuePC = sem_open("/semQueuePC", O_CREAT, 0600, 1);
 
     // initalise stack variables
-    stack_init(&paths);
-    stack_init(&charsStack);
-    stack_init(&linesStack);
+    stack_init(&paths, 1);
+    stack_init(&charsStack, get_nprocs());
+    stack_init(&linesStack, get_nprocs());
     // sem_post(semQueuePC);
     extensionsCounter = 0;
 
@@ -47,16 +39,16 @@ int main(int argc, char const *argv[])
 
     pthread_create(&threadIdFinder, NULL, finder, NULL);
 
-    sleep(10);
+    // sleep(10);
     pthread_t threadIdProc[get_nprocs()];
     for (int i = 0; i < get_nprocs(); i++)
     {
         pthread_create(&threadIdProc[i], NULL, proc, NULL);
     }
-    sleep(10);
+    // sleep(10);
     pthread_t threadIdCounter;
     pthread_create(&threadIdCounter, NULL, counter, NULL);
-    sleep(10);
+    // sleep(10);
 
     printf("sprzątam\n");
     // sprzątanie

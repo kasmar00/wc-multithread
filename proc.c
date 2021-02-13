@@ -1,5 +1,3 @@
-
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -7,7 +5,6 @@
 #include <sys/mman.h>
 #include <ctype.h>
 #include <stdio.h>
-#include <pthread.h>
 #include <string.h>
 
 #include "common.h"
@@ -38,31 +35,27 @@ void wc(char *file)
     sprintf(strLines, "%d", lines);
     char *a = strdup(strChars);
     char *b = strdup(strLines);
-    sem_wait(semQueuePC); // blokada przed przeplotem zapisu na kolejki do Counter
+    // sem_wait(semQueuePC); // blokada przed przeplotem zapisu na kolejki do Counter
     stack_push(&charsStack, a);
     stack_push(&linesStack, b);
-    sem_post(semQueuePC);
+    // sem_post(semQueuePC);
 }
 
 void *proc(void *i)
 {
     printf("procs\n");
-    char *endChars = strdup(__END_MSG__);
-    char *endLines = strdup(__END_MSG__);
-    sem_wait(semQueuePC); // blokada przed przeplotem zapisu na kolejki do Counter
-    stack_push(&charsStack, endChars);
-    stack_push(&linesStack, endLines);
-    sem_post(semQueuePC);
     while (1)
     {
         char *tmp = stack_pop(&paths);
-        if (strcmp(__END_MSG__, tmp))
+        if (tmp != NULL)
             wc(tmp);
         else
             break;
     }
 
     printf("ending proc\n");
+    stack_endData(&charsStack);
+    stack_endData(&linesStack);
     printf("end proc\n");
     return NULL;
 }
