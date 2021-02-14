@@ -14,15 +14,13 @@ void *counter(void *i)
     int lines = 0;
     printf("counter\n");
 
-    int activeProcs = get_nprocs();
-
     while (1)
     {
         // sem_wait(semQueuePC); // blokada przed przeplotem zapisu na kolejki do Counter
         char *strChars = stack_pop(&charsStack);
         char *strLines = stack_pop(&linesStack);
         // sem_post(semQueuePC);
-        printf("actv proc: %d; rcved %s %s\n", activeProcs, strChars, strLines);
+        printf("actv proc: %d; rcved %s %s\n", charsStack.activePushers, strChars, strLines);
 
         if (strChars != NULL)
         {
@@ -30,8 +28,6 @@ void *counter(void *i)
             lines += atoi(strLines);
         }
         else
-            activeProcs--;
-        if (activeProcs == 0)
             break;
     }
     printf("FINAL\n");

@@ -68,7 +68,7 @@ void stack_init(STACK *stack, int pushers)
 void stack_endData(STACK *stack)
 {
     pthread_mutex_lock(&stack->mutex);
-    stack->activePushers = -1;
+    stack->activePushers -= 1;
     pthread_cond_broadcast(&stack->underCond);
     pthread_mutex_unlock(&stack->mutex);
 }
