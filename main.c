@@ -20,13 +20,9 @@ int main(int argc, char const *argv[])
         return -1;
     }
 
-    semQueuePC = sem_open("/semQueuePC", O_CREAT, 0600, 1);
-
     // initalise stack variables
     stack_init(&paths, 1);
-    stack_init(&charsStack, get_nprocs());
-    stack_init(&linesStack, get_nprocs());
-    // sem_post(semQueuePC);
+    stack_init(&results, get_nprocs());
     extensionsCounter = 0;
 
     pthread_t threadIdFinder;
@@ -57,7 +53,5 @@ int main(int argc, char const *argv[])
         pthread_join(threadIdProc[i], NULL);
     pthread_join(threadIdCounter, NULL);
 
-    sem_close(semQueuePC);
-    sem_unlink("/semQueuePC");
     return 0;
 }

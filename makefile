@@ -30,6 +30,12 @@ main.o: main.c common.h
 %.o: %.c %.h common.h
 	$(LINUX_GCC) $(LINUX_CFLAGS) -c $< $(LINUX_CFLAGS_END)
 
+testmem: main.out
+	valgrind --tool=memcheck --leak-check=full ./main.out ./ c h
+
+zip:
+	zip projekt.zip *.c *.h makefile
+
 help:
 	@echo "Makefile for C Project"
 	@echo "Course: System Programming and Concurent Programming"

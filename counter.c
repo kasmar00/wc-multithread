@@ -9,23 +9,20 @@
 
 void *counter(void *i)
 {
-    // int queueFC = *((int *)i);
     int chars = 0;
     int lines = 0;
     printf("counter\n");
 
     while (1)
     {
-        // sem_wait(semQueuePC); // blokada przed przeplotem zapisu na kolejki do Counter
-        char *strChars = stack_pop(&charsStack);
-        char *strLines = stack_pop(&linesStack);
-        // sem_post(semQueuePC);
-        printf("actv proc: %d; rcved %s %s\n", charsStack.activePushers, strChars, strLines);
+        TWOINTS *tmp = stack_pop(&results);
+        // printf("actv proc: %d; rcved %d %d\n", charsStack.activePushers, tmp->chars, tmp->lines);
 
-        if (strChars != NULL)
+        if (tmp != NULL)
         {
-            chars += atoi(strChars);
-            lines += atoi(strLines);
+            chars += tmp->chars;
+            lines += tmp->lines;
+            free(tmp);
         }
         else
             break;

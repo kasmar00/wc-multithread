@@ -14,11 +14,19 @@
 void wc(char *file)
 {
     int lines = 0, chars = 0;
+    int d = open(file, O_RDONLY);
+    if (d < 0)
+    {
+        printf("Error on opening file: %s\nRunning with user: %d, group: %d\nPlease check if you have access to this file\n", file, getgid(), getuid());
+        perror("Błąd otwarcia pliku");
+        // free(buffer);
+        return;
+    }
     struct stat *buffer = malloc(sizeof(struct stat));
     stat(file, buffer);
-    printf("%ld\n", buffer->st_size);
-    int d = open(file, O_RDONLY);
+    // printf("%ld\n", buffer->st_size); // file size
     char *ptr = mmap(NULL, buffer->st_size, PROT_READ, MAP_SHARED, d, 0);
+    free(buffer);
     for (int i = 0; i < buffer->st_size; i++)
     {
         // printf("%c", (char)*(ptr + i));
@@ -27,18 +35,12 @@ void wc(char *file)
         if (!isspace((char)*(ptr + i)))
             chars++;
     }
-    printf("procs: %ld, plik: %s znakow %d, linijek %d\n", pthread_self(), file, chars, lines);
+    printf("procs: %d, plik: %s znakow %d, linijek %d\n", gettid(), file, chars, lines);
     close(d);
-    char strChars[1024];
-    char strLines[1024];
-    sprintf(strChars, "%d", chars);
-    sprintf(strLines, "%d", lines);
-    char *a = strdup(strChars);
-    char *b = strdup(strLines);
-    // sem_wait(semQueuePC); // blokada przed przeplotem zapisu na kolejki do Counter
-    stack_push(&charsStack, a);
-    stack_push(&linesStack, b);
-    // sem_post(semQueuePC);
+    TWOINTS *tmp = malloc(sizeof(TWOINTS)); // odpowiednikiem byłby malloc(2*sizeof(int))
+    tmp->chars = chars;
+    tmp->lines = lines;
+    stack_push(&results, tmp);
 }
 
 void *proc(void *i)
@@ -48,14 +50,15 @@ void *proc(void *i)
     {
         char *tmp = stack_pop(&paths);
         if (tmp != NULL)
+        {
             wc(tmp);
+            free(tmp);
+        }
         else
             break;
     }
 
-    printf("ending proc\n");
-    stack_endData(&charsStack);
-    stack_endData(&linesStack);
+    stack_endData(&results);
     printf("end proc\n");
     return NULL;
 }

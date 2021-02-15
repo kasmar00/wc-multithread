@@ -67,6 +67,7 @@ void stack_init(STACK *stack, int pushers)
 
 void stack_endData(STACK *stack)
 {
+    // reduces a number of active pushers (prodeucers) by one. When the number reaches 0 all poping processes will receive null
     pthread_mutex_lock(&stack->mutex);
     stack->activePushers -= 1;
     pthread_cond_broadcast(&stack->underCond);

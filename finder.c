@@ -15,6 +15,9 @@ int checkExtension(const char *filename, const char *extension)
     size_t lenExtension = strlen(extension);
     if (lenExtension > lenFilename)
         return 0;
+    if ((char)*(filename + lenFilename - lenExtension - 1) != '.')
+        // check if last char before extension is a dot
+        return 0;
     return strncmp(filename + lenFilename - lenExtension, extension, lenExtension) == 0;
     // filename to wskażnik na początek napisu, więc dodajemy jego długość i odejmujemy długość suffixu, żeby uzyskać samo rozszerzenie pliku
 }
@@ -54,7 +57,6 @@ void dirRead(char *dirName)
             if (flag)
             {
                 // put on paths stack
-                printf("pushing:\n");
                 char *element = strdup(buf);
                 stack_push(&paths, element);
             }
@@ -65,6 +67,7 @@ void dirRead(char *dirName)
             break;
         }
     }
+    closedir(rootDir);
 }
 
 void *finder(void *info)
