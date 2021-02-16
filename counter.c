@@ -16,10 +16,10 @@ void *counter(void *i)
     while (1)
     {
         TWOINTS *tmp = stack_pop(&results);
-        // printf("actv proc: %d; rcved %d %d\n", charsStack.activePushers, tmp->chars, tmp->lines);
 
         if (tmp != NULL)
         {
+            printf("actv proc: %d; rcved %d %d\n", results.activePushers, tmp->chars, tmp->lines);
             chars += tmp->chars;
             lines += tmp->lines;
             free(tmp);

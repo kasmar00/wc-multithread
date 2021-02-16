@@ -19,7 +19,6 @@ void wc(char *file)
     {
         printf("Error on opening file: %s\nRunning with user: %d, group: %d\nPlease check if you have access to this file\n", file, getgid(), getuid());
         perror("Błąd otwarcia pliku");
-        // free(buffer);
         return;
     }
     struct stat *buffer = malloc(sizeof(struct stat));
@@ -30,12 +29,13 @@ void wc(char *file)
     for (int i = 0; i < buffer->st_size; i++)
     {
         // printf("%c", (char)*(ptr + i));
+        // liczymy linie według definicji POSIX: linia to ciąg znaków zakończony znakiem nowej linii
         if ((char)*(ptr + i) == '\n')
             lines++;
         if (!isspace((char)*(ptr + i)))
             chars++;
     }
-    printf("procs: %d, plik: %s znakow %d, linijek %d\n", gettid(), file, chars, lines);
+    printf("procs: %ld, plik: %s znakow %d, linijek %d\n", pthread_self(), file, chars, lines);
     close(d);
     TWOINTS *tmp = malloc(sizeof(TWOINTS)); // odpowiednikiem byłby malloc(2*sizeof(int))
     tmp->chars = chars;

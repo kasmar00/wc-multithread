@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
 #include <dirent.h>
@@ -35,6 +36,7 @@ void dirRead(char *dirName)
         switch (dirEnt->d_type)
         {
         case DT_DIR:
+            // dla katalogów innych niż "." i ".." wywołujemy dirRead rekurencyjnie
             printf("Dir %s {\n", dirEnt->d_name);
             if (strcmp(dirEnt->d_name, "..") != 0 && strcmp(dirEnt->d_name, ".") != 0)
             {
@@ -45,6 +47,7 @@ void dirRead(char *dirName)
             printf("} \n");
             break;
         case DT_REG:
+            // dla plików regularnych o poprawnych rozszerzeniach przesyłamy ścieżkę na stos paths
             printf("Reg %s\n", dirEnt->d_name);
             char buf[1024];
             snprintf(buf, sizeof buf, "%s/%s", dirName, dirEnt->d_name);
@@ -63,6 +66,7 @@ void dirRead(char *dirName)
             break;
 
         default:
+            // dla innych plików ignorujemy
             printf("Other/Unkown %s\n", dirEnt->d_name);
             break;
         }
@@ -72,14 +76,13 @@ void dirRead(char *dirName)
 
 void *finder(void *info)
 {
-    paths.pointer = -1;
     printf("thread\n");
 
     printf("dir: %s\n", rootDirName);
     for (int j = 0; j < extensionsCounter; j++)
         printf("args: %s\n", extensions[j]);
     dirRead(rootDirName);
-    stack_read(&paths);
+    // stack_read(&paths);
     stack_endData(&paths);
     printf("end finder\n");
     return NULL;

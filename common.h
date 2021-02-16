@@ -5,9 +5,11 @@
 
 #define MaxStackSize 500
 
-STACK paths;
-STACK results;
+// stacks for communication
+STACK paths;   //from finder to procs
+STACK results; // from procs to counter
 
+// struct for storing information on stack results
 typedef struct
 {
     int lines;
