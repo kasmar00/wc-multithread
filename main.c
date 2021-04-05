@@ -46,7 +46,7 @@ int main(int argc, char const *argv[])
     pthread_create(&threadIdCounter, NULL, counter, NULL);
     // sleep(10);
 
-    printf("sprzątam\n");
+    // printf("sprzątam\n");
     // sprzątanie
     pthread_join(threadIdFinder, NULL);
     for (int i = 0; i < get_nprocs(); i++)

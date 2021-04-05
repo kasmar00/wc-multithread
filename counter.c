@@ -11,7 +11,7 @@ void *counter(void *i)
 {
     int chars = 0;
     int lines = 0;
-    printf("counter\n");
+    // printf("counter\n");
 
     while (1)
     {
@@ -19,7 +19,7 @@ void *counter(void *i)
 
         if (tmp != NULL)
         {
-            printf("actv proc: %d; rcved %d %d\n", results.activePushers, tmp->chars, tmp->lines);
+            // printf("actv proc: %d; rcved %d %d\n", results.activePushers, tmp->chars, tmp->lines);
             chars += tmp->chars;
             lines += tmp->lines;
             free(tmp);
@@ -27,7 +27,7 @@ void *counter(void *i)
         else
             break;
     }
-    printf("FINAL\n");
+    // printf("FINAL\n");
     printf("Liczba linii: %d\nLiczba znaków: %d\n", lines, chars);
 
     return 0;

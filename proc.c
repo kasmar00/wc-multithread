@@ -35,7 +35,7 @@ void wc(char *file)
         if (!isspace((char)*(ptr + i)))
             chars++;
     }
-    printf("procs: %ld, plik: %s znakow %d, linijek %d\n", pthread_self(), file, chars, lines);
+    // printf("procs: %ld, plik: %s znakow %d, linijek %d\n", pthread_self(), file, chars, lines);
     close(d);
     TWOINTS *tmp = malloc(sizeof(TWOINTS)); // odpowiednikiem byłby malloc(2*sizeof(int))
     tmp->chars = chars;
@@ -45,7 +45,7 @@ void wc(char *file)
 
 void *proc(void *i)
 {
-    printf("procs\n");
+    // printf("procs\n");
     while (1)
     {
         char *tmp = stack_pop(&paths);
@@ -59,6 +59,6 @@ void *proc(void *i)
     }
 
     stack_endData(&results);
-    printf("end proc\n");
+    // printf("end proc\n");
     return NULL;
 }

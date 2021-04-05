@@ -1,47 +1,43 @@
-# Zadanie zaliczeniowe
+# Wielowątkowe zliczanie znaków i linii
 
-Zamiast potoków - kolejki komunikatów.
+Projekt zaliczeniowy na laboratorium z Programowania Systemowego i Współbieżnego
 
-Odpowiednik systemowy (kinda): `find ./ -type f | xargs wc`
+Informatyka 3 sem, Wydział Informatyki i Telekomunikacji, Politechnika Poznańska 2020/21.
 
-Oddanie projektu:
+Prowadzący zajęcia: [Cezary Sobaniec](https://www.cs.put.poznan.pl/csobaniec/)
 
-1. Wysłanie maila z kodem i objaśnieniem
-1. Obrona projektu na zoomie
+Celem projektu było przygotowanie wielowątkowego programu, który przelicza znaki i linie w plikach zanjdujacych się w zadanym katalogu, o zadanych rozszerzeniach. Pełne polecenie dostępne jest w pliku `psw-zaliczenie.pdf` (jako zadanie za 16 punktów).
 
-## Program główny
+## Uruchomienie
 
-1. Stwórz kolejki komunikatów dla wątków (main-> finder, finder->proc's, proc's->counter 2x)
-1. Stwórz wątek finder
-1. Stwórz N wątków proc
-1. Stwórz wątek counter
-1. Poczekaj na zakończenie działania przez wątki (`pthread_join`)
+1. Skompilować poleceniem `$ make`
 
-## Wątek `finder`
+   (W przypadku problemów zwrócić uwagę na flagę `lpthread` vs `pthread`)
 
-1. Przglądaj rekurencyjnie drzewo katalogów
-   - Każdy napotkany plik wysyłaj na kolejke do `proc`
-   - podnieś semafor o jeden dla kazðego przesłanego pliku
-1. Zakończ działanie
+2. Uruchomić wywołując `$ ./main.out <ścieżka> <rozszerzenia>`
 
-## Wątek `proc`
+   np. `$ ./main.out ./ c h`
 
-1. Spróbuj odczytać kolejny plik z kolejki
-   - opuść mutex dostępu do kolejki
-   - odczytuj znak po znaku, aż do osiągnięcia `'\n'`
-   - opuśc mutex liczby plików w kolejki
-   - opuść mutex dostępu do kolejki
-     - jeżeli odczytano kumunikat końca przetwarzania przęslij do `counter` informacje o końcu i zakończ działanie wątku
-2. odczytaj plik, przelicz znaki itp
-3. prześlij wyniki na potoki do `counter` (osobno liczbe znakow, osobno liczbe linii)
-   - opuść mutex dostępu do kolejki
-   - wyśllij wyniki
-   - podnieś mutex liczby wyników w kolejki
-   - podnieś mutex dostępu do kolejki
+   alternatywnie można uruchomić poleceniem `$ make run` (wywołanie odpowiada `$ ./main.out ./ c h`)
 
-## Wątek `counter`
+# Multithreaded Word Counter
 
-1. Spróbuj odczytać kolejny wynik z kolejki (osobno liczba znaków, osobno liczba linii)
-   - odcztuj znak po znaku aż do `'\n'`
-   - jeżeli odczytano informacje o końcu przetwarzania tyle razy, ile jest logicznych procesorów, zakończ działanie wypisując na ekran wynik
-2. dodaj do obecnego wyniku otrzyamne dane
+Final project for laboratory in System Programming and Concurent Programming.
+
+Computing 3 sem, Faculty of Computing and Telecomunications Poznań Univeristy of Technology 2020/2021.
+
+Goal of the project was to create a
+
+Teacher: [Cezary Sobaniec](https://www.cs.put.poznan.pl/csobaniec/)
+
+## Running
+
+1. Run the file `$ make`
+
+   (In case of problems check the `-pthread` vs `-lpthread` flag)
+
+2. Run using `$ ./main.out <path> <extensions>`
+
+   example: `$ ./main.out ./ c h`
+
+   Alternatuvely you can use the provided makefile and run `$ make run` (which corresponds to `$ ./main.out ./ c h`)

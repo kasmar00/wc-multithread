@@ -25,7 +25,7 @@ int checkExtension(const char *filename, const char *extension)
 
 void dirRead(char *dirName)
 {
-    printf("szukanie w %s\n", dirName);
+    // printf("szukanie w %s\n", dirName);
     DIR *rootDir;
     rootDir = opendir(dirName);
 
@@ -33,23 +33,22 @@ void dirRead(char *dirName)
 
     while ((dirEnt = readdir(rootDir)) != NULL)
     {
+        char buf[1024];
         switch (dirEnt->d_type)
         {
         case DT_DIR:
             // dla katalogów innych niż "." i ".." wywołujemy dirRead rekurencyjnie
-            printf("Dir %s {\n", dirEnt->d_name);
+            // printf("Dir %s {\n", dirEnt->d_name);
             if (strcmp(dirEnt->d_name, "..") != 0 && strcmp(dirEnt->d_name, ".") != 0)
             {
-                char buf[1024];
                 snprintf(buf, sizeof buf, "%s/%s", dirName, dirEnt->d_name);
                 dirRead(buf);
             }
-            printf("} \n");
+            // printf("} \n");
             break;
         case DT_REG:
             // dla plików regularnych o poprawnych rozszerzeniach przesyłamy ścieżkę na stos paths
-            printf("Reg %s\n", dirEnt->d_name);
-            char buf[1024];
+            // printf("Reg %s\n", dirEnt->d_name);
             snprintf(buf, sizeof buf, "%s/%s", dirName, dirEnt->d_name);
             int flag = 0;
             for (int i = 0; i < extensionsCounter; i++) //check extensions
@@ -67,7 +66,7 @@ void dirRead(char *dirName)
 
         default:
             // dla innych plików ignorujemy
-            printf("Other/Unkown %s\n", dirEnt->d_name);
+            // printf("Other/Unkown %s\n", dirEnt->d_name);
             break;
         }
     }
@@ -76,14 +75,14 @@ void dirRead(char *dirName)
 
 void *finder(void *info)
 {
-    printf("thread\n");
+    // printf("thread\n");
 
-    printf("dir: %s\n", rootDirName);
-    for (int j = 0; j < extensionsCounter; j++)
-        printf("args: %s\n", extensions[j]);
+    // printf("dir: %s\n", rootDirName);
+    // for (int j = 0; j < extensionsCounter; j++)
+    // printf("args: %s\n", extensions[j]);
     dirRead(rootDirName);
     // stack_read(&paths);
     stack_endData(&paths);
-    printf("end finder\n");
+    // printf("end finder\n");
     return NULL;
 }
