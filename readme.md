@@ -26,7 +26,7 @@ Final project for laboratory in System Programming and Concurent Programming.
 
 Computing 3 sem, Faculty of Computing and Telecomunications Poznań Univeristy of Technology 2020/2021.
 
-Goal of the project was to create a
+Goal of the project was to create a multithreaded program, for counting characters and lines in files in a given folder with given extensions.
 
 Teacher: [Cezary Sobaniec](https://www.cs.put.poznan.pl/csobaniec/)
 
